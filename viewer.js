@@ -13,10 +13,10 @@ async function getRawText() {
 
 function decodeBreakToken(token) {
   const escapedCharMap = {
-    "\\": "\\",
     n: "\n",
     r: "\r",
-    t: "\t"
+    t: "\t",
+    "\\": "\\"
   };
 
   return token.replace(/\\([\\nrt])/g, (_, escaped) => {
@@ -45,6 +45,7 @@ function renderText(rawText, breakTokenInput) {
 }
 
 function setupReader(rawText) {
+  const ignoredKeys = new Set(["Shift", "Control", "Alt", "Meta", "CapsLock", "Tab", "Escape"]);
   const pre = document.getElementById("text");
   const breakOnInput = document.getElementById("breakOn");
   const columnDelineation = document.getElementById("columnDelineation");
@@ -149,7 +150,7 @@ function setupReader(rawText) {
       return;
     }
 
-    if (["Shift", "Control", "Alt", "Meta", "CapsLock", "Tab", "Escape"].includes(event.key)) {
+    if (ignoredKeys.has(event.key)) {
       return;
     }
 
