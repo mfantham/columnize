@@ -74,14 +74,14 @@ function setupReader(rawText) {
   function stepColumns() {
     const now = Date.now();
     if (now - lastStepAt < minScrollIntervalMs) {
-      return false;
+      return;
     }
 
     lastStepAt = now;
     const maxLeft = document.documentElement.scrollWidth - window.innerWidth;
 
     if (maxLeft <= 0) {
-      return false;
+      return;
     }
 
     const step = getScrollStep();
@@ -89,7 +89,6 @@ function setupReader(rawText) {
     const target = next > maxLeft ? 0 : next;
 
     window.scrollTo({ left: target, behavior: "smooth" });
-    return true;
   }
 
   function stopCountdown() {
