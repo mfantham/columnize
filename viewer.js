@@ -11,9 +11,26 @@ async function getRawText() {
   return params.get("text") ?? "";
 }
 
-function renderText(rawText) {
+function decodeBreakToken(token) {
+  return token.replace(/\\([\\nrt])/g, (_, escaped) => {
+    if (escaped === "n") {
+      return "\n";
+    }
+    if (escaped === "r") {
+      return "\r";
+    }
+    if (escaped === "t") {
+      return "\t";
+    }
+    return "\\";
+  });
+}
+
+function renderText(rawText, breakTokenInput) {
   const pre = document.getElementById("text");
-  const blocks = rawText.split(/\r?\n\r?\n+/);
+  const breakToken = decodeBreakToken(breakTokenInput);
+  const blocks = breakToken ? rawText.split(breakToken) : [rawText];
+  pre.textContent = "";
 
   blocks.forEach((block, index) => {
     const span = document.createElement("span");
@@ -29,9 +46,19 @@ function renderText(rawText) {
   return pre;
 }
 
-function setupKeyboardScroll(pre) {
+function setupReader(rawText) {
+  const pre = document.getElementById("text");
+  const breakOnInput = document.getElementById("breakOn");
+  const columnDelineation = document.getElementById("columnDelineation");
+  const autoScrollEnabled = document.getElementById("autoScrollEnabled");
+  const autoScrollSeconds = document.getElementById("autoScrollSeconds");
+  const countdown = document.getElementById("countdown");
+
   const minScrollIntervalMs = 200;
   let lastStepAt = 0;
+  let autoScrollTimeout = null;
+  let countdownInterval = null;
+  let deadlineMs = 0;
 
   function getScrollStep() {
     const styles = window.getComputedStyle(pre);
@@ -45,17 +72,17 @@ function setupKeyboardScroll(pre) {
     return window.innerWidth;
   }
 
-  window.addEventListener("keydown", () => {
+  function stepColumns() {
     const now = Date.now();
     if (now - lastStepAt < minScrollIntervalMs) {
-      return;
+      return false;
     }
 
     lastStepAt = now;
     const maxLeft = document.documentElement.scrollWidth - window.innerWidth;
 
     if (maxLeft <= 0) {
-      return;
+      return false;
     }
 
     const step = getScrollStep();
@@ -63,11 +90,88 @@ function setupKeyboardScroll(pre) {
     const target = next > maxLeft ? 0 : next;
 
     window.scrollTo({ left: target, behavior: "smooth" });
+    return true;
+  }
+
+  function stopCountdown() {
+    if (countdownInterval !== null) {
+      window.clearInterval(countdownInterval);
+      countdownInterval = null;
+    }
+  }
+
+  function clearAutoscroll() {
+    if (autoScrollTimeout !== null) {
+      window.clearTimeout(autoScrollTimeout);
+      autoScrollTimeout = null;
+    }
+    stopCountdown();
+    countdown.hidden = true;
+  }
+
+  function updateCountdown() {
+    const remainingMs = Math.max(0, deadlineMs - Date.now());
+    countdown.textContent = `Next: ${(remainingMs / 1000).toFixed(1)}s`;
+  }
+
+  function scheduleAutoscroll() {
+    clearAutoscroll();
+
+    if (!autoScrollEnabled.checked) {
+      return;
+    }
+
+    const seconds = Number.parseFloat(autoScrollSeconds.value);
+    if (!Number.isFinite(seconds) || seconds <= 0) {
+      return;
+    }
+
+    const delayMs = seconds * 1000;
+    deadlineMs = Date.now() + delayMs;
+    countdown.hidden = false;
+    updateCountdown();
+    countdownInterval = window.setInterval(updateCountdown, 100);
+    autoScrollTimeout = window.setTimeout(() => {
+      stepColumns();
+      scheduleAutoscroll();
+    }, delayMs);
+  }
+
+  function rerender() {
+    renderText(rawText, breakOnInput.value);
+  }
+
+  function applyColumnRule() {
+    pre.style.columnRule = columnDelineation.checked ? "1px solid #d0d0d0" : "none";
+  }
+
+  window.addEventListener("keydown", (event) => {
+    const target = event.target;
+    if (
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      (target instanceof HTMLElement && target.isContentEditable)
+    ) {
+      return;
+    }
+
+    stepColumns();
+    if (autoScrollEnabled.checked) {
+      scheduleAutoscroll();
+    }
   });
+
+  breakOnInput.addEventListener("change", rerender);
+  columnDelineation.addEventListener("change", applyColumnRule);
+  autoScrollEnabled.addEventListener("change", scheduleAutoscroll);
+  autoScrollSeconds.addEventListener("change", scheduleAutoscroll);
+
+  rerender();
+  applyColumnRule();
+  scheduleAutoscroll();
 }
 
 (async () => {
   const rawText = await getRawText();
-  const pre = renderText(rawText);
-  setupKeyboardScroll(pre);
+  setupReader(rawText);
 })();
