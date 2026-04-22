@@ -12,17 +12,15 @@ async function getRawText() {
 }
 
 function decodeBreakToken(token) {
+  const escapedCharMap = {
+    "\\": "\\",
+    n: "\n",
+    r: "\r",
+    t: "\t"
+  };
+
   return token.replace(/\\([\\nrt])/g, (_, escaped) => {
-    if (escaped === "n") {
-      return "\n";
-    }
-    if (escaped === "r") {
-      return "\r";
-    }
-    if (escaped === "t") {
-      return "\t";
-    }
-    return "\\";
+    return escapedCharMap[escaped] ?? `\\${escaped}`;
   });
 }
 
@@ -147,6 +145,14 @@ function setupReader(rawText) {
 
   window.addEventListener("keydown", (event) => {
     const target = event.target;
+    if (event.ctrlKey || event.metaKey || event.altKey) {
+      return;
+    }
+
+    if (["Shift", "Control", "Alt", "Meta", "CapsLock", "Tab", "Escape"].includes(event.key)) {
+      return;
+    }
+
     if (
       target instanceof HTMLInputElement ||
       target instanceof HTMLTextAreaElement ||
