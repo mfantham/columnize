@@ -85,10 +85,10 @@
   <body>
     <div id="layout">
       <div id="toolbar">
-        <label>Break token: <input id="breakOn" type="text" value="\n\n" aria-label="Break text on token" /></label>
+        <label>Break token: <input id="breakOn" type="text" value="\n\n" aria-label="Break token" /></label>
         <label><input id="columnDelineation" type="checkbox" checked /> Column delineation</label>
         <label><input id="autoScrollEnabled" type="checkbox" /> Autoscroll after</label>
-        <label><input id="autoScrollSeconds" type="number" min="1" step="1" value="8" /> s</label>
+        <label><input id="autoScrollSeconds" type="number" min="1" step="1" value="8" aria-label="Autoscroll interval in seconds" /> s</label>
         <span id="countdown" hidden></span>
       </div>
       <pre id="text"></pre>
