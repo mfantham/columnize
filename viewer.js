@@ -45,7 +45,7 @@ function renderText(rawText, breakTokenInput) {
 }
 
 function setupReader(rawText) {
-  const ignoredKeys = new Set(["Control", "Alt", "Meta", "CapsLock", "Tab", "Escape"]);
+  const ignoredKeys = new Set(["Shift", "CapsLock", "Tab", "Escape"]);
   const pre = document.getElementById("text");
   const breakOnInput = document.getElementById("breakOn");
   const columnDelineation = document.getElementById("columnDelineation");
@@ -146,10 +146,6 @@ function setupReader(rawText) {
   window.addEventListener("keydown", (event) => {
     const target = event.target;
     if (event.ctrlKey || event.metaKey || event.altKey) {
-      return;
-    }
-
-    if (event.key === "Shift") {
       return;
     }
 
