@@ -3,7 +3,11 @@
   "name": "Columnize",
   "version": "1.0.0",
   "description": "Take selected text and open it in full-height columns for hands-free reading.",
-  "permissions": ["activeTab", "scripting"],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
   "action": {
     "default_title": "Columnize selected text",
     "default_icon": {

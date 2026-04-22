@@ -13,6 +13,9 @@ chrome.action.onClicked.addListener(async (tab) => {
   }
 
   const selectedText = await getSelectedText(tab.id);
-  const url = chrome.runtime.getURL(`viewer.html?text=${encodeURIComponent(selectedText)}`);
+  const textId = crypto.randomUUID();
+  await chrome.storage.session.set({ [textId]: selectedText });
+
+  const url = chrome.runtime.getURL(`viewer.html?id=${encodeURIComponent(textId)}`);
   await chrome.tabs.create({ url });
 });
