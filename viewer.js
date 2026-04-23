@@ -165,14 +165,11 @@ function setupReader(rawText) {
    });
 
    // Make vertical scroll wheel control horizontal scrolling
-   window.addEventListener("wheel", (event) => {
-     // Prevent default vertical scroll behavior
-     event.preventDefault();
-     
+   window.addEventListener("wheel", (event) => {     
      // Scroll horizontally based on vertical wheel movement
      window.scrollBy({
        left: event.deltaY,
-       behavior: "smooth"
+       behavior: "instant"
      });
    });
 
