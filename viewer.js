@@ -47,6 +47,8 @@ function setupReader(rawText) {
   const breakOnInput = document.getElementById("breakOn");
   const columnDelineation = document.getElementById("columnDelineation");
   const fontFamily = document.getElementById("fontFamily");
+  const fontSize = document.getElementById("fontSize");
+  const lineHeight = document.getElementById("lineHeight");
   const autoScrollEnabled = document.getElementById("autoScrollEnabled");
   const autoScrollSeconds = document.getElementById("autoScrollSeconds");
   const countdown = document.getElementById("countdown");
@@ -178,6 +180,12 @@ function setupReader(rawText) {
   columnDelineation.addEventListener("change", applyColumnRule);
   fontFamily.addEventListener("change", () => {
     pre.style.fontFamily = fontFamily.value;
+  });
+  fontSize.addEventListener("change", () => {
+    pre.style.fontSize = fontSize.value + "rem";
+  });
+  lineHeight.addEventListener("change", () => {
+    pre.style.lineHeight = lineHeight.value + "rem";
   });
   autoScrollEnabled.addEventListener("change", scheduleAutoscroll);
   autoScrollSeconds.addEventListener("change", scheduleAutoscroll);
