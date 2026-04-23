@@ -107,10 +107,10 @@ function setupReader(rawText) {
     countdown.hidden = true;
   }
 
-  function updateCountdown() {
-    const remainingMs = Math.max(0, deadlineMs - Date.now());
-    countdown.textContent = `Next: ${(remainingMs / 1000).toFixed(1)}s`;
-  }
+   function updateCountdown() {
+     const remainingMs = Math.max(0, deadlineMs - Date.now());
+     countdown.textContent = `${(remainingMs / 1000).toFixed(0)}s`;
+   }
 
   function scheduleAutoscroll() {
     clearAutoscroll();

@@ -90,12 +90,12 @@
   <body>
       <div id="layout">
         <div id="toolbar">
-          <label for="breakOn">Break token:</label>
-          <input id="breakOn" type="text" value="\n\n" />
+           <label for="breakOn">Break regex:</label>
+           <input id="breakOn" type="text" value="\n\s+\n" />
           <label><input id="columnDelineation" type="checkbox" checked /> Column delineation</label>
           <label><input id="autoScrollEnabled" type="checkbox" /> Autoscroll</label>
-          <label for="autoScrollSeconds">Autoscroll after (seconds):</label>
-          <input id="autoScrollSeconds" type="number" min="1" step="1" value="8" />
+           <label for="autoScrollSeconds">after s</label>
+           <input id="autoScrollSeconds" type="number" min="1" step="1" value="30" />
           <span id="countdown" hidden></span>
         </div>
         <pre id="text"></pre>
