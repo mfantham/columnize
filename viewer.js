@@ -26,8 +26,16 @@ function decodeBreakToken(token) {
 
 function renderText(rawText, breakTokenInput) {
   const pre = document.getElementById("text");
-  const breakToken = decodeBreakToken(breakTokenInput);
-  const blocks = breakToken ? rawText.split(breakToken) : [rawText];
+  let blocks = [rawText];
+  if (breakTokenInput) {
+    try {
+      const regex = new RegExp(breakTokenInput);
+      blocks = rawText.split(regex);
+    } catch (e) {
+      // If regex is invalid, fall back to no splitting
+      console.warn("Invalid break regex:", breakTokenInput, e);
+    }
+  }
   pre.textContent = "";
 
   blocks.forEach((block, index) => {
