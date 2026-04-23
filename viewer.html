@@ -13,19 +13,69 @@
       }
 
       body {
+        box-sizing: border-box;
         overflow-x: auto;
         overflow-y: hidden;
         scroll-behavior: smooth;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      #layout {
+        display: flex;
+        flex-direction: column;
+        width: max-content;
+        min-width: 100vw;
+        height: 100vh;
+      }
+
+      #toolbar {
+        position: fixed;
+        top: 0;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.35rem 0.6rem;
+        border-bottom: 1px solid #e5e5e5;
+        background: #fff;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      #toolbar label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+
+      #toolbar input[type="text"] {
+        width: 5rem;
+      }
+
+      #toolbar input[type="number"] {
+        width: 2.5rem;
+      }
+
+      #countdown {
+        color: #555;
+      }
+
+      #countdown[hidden] {
+        display: none;
       }
 
       pre {
         box-sizing: border-box;
         margin: 0;
         padding: 1rem;
-        height: 100vh;
+        height: 100%;
+        min-height: 0;
         column-width: 80ch;
         column-gap: 2rem;
         column-fill: auto;
+        column-rule: 1px solid #d0d0d0;
         width: max-content;
         min-width: 100vw;
         white-space: pre;
@@ -38,7 +88,21 @@
     </style>
   </head>
   <body>
-    <pre id="text"></pre>
+      <div id="layout">
+        <div id="toolbar">
+           <label for="breakOn">Break regex:</label>
+           <input id="breakOn" type="text" value="\n\s+\n" />
+          <label><input id="columnDelineation" type="checkbox" checked />Rulers</label>
+          <div style="display: flex">
+            <label><input id="autoScrollEnabled" type="checkbox" />Autoscroll</label>
+            <label for="autoScrollSeconds">&nbsp;after&nbsp;</label>
+            <input id="autoScrollSeconds" type="number" min="1" step="1" value="30" />
+            <label>s </label>
+            <span id="countdown" hidden></span>
+          </div>
+        </div>
+        <pre id="text"></pre>
+      </div>
     <script src="viewer.js"></script>
   </body>
 </html>

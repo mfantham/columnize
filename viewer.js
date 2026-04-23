@@ -11,9 +11,21 @@ async function getRawText() {
   return params.get("text") ?? "";
 }
 
-function renderText(rawText) {
+
+
+function renderText(rawText, breakTokenInput) {
   const pre = document.getElementById("text");
-  const blocks = rawText.split(/\r?\n\r?\n+/);
+  let blocks = [rawText];
+  if (breakTokenInput) {
+    try {
+      const regex = new RegExp(breakTokenInput);
+      blocks = rawText.split(regex);
+    } catch (e) {
+      // If regex is invalid, fall back to no splitting
+      console.warn("Invalid break regex:", breakTokenInput, e);
+    }
+  }
+  pre.textContent = "";
 
   blocks.forEach((block, index) => {
     const span = document.createElement("span");
@@ -29,9 +41,20 @@ function renderText(rawText) {
   return pre;
 }
 
-function setupKeyboardScroll(pre) {
+function setupReader(rawText) {
+  const ignoredKeys = new Set(["Shift", "CapsLock", "Tab", "Escape"]);
+  const pre = document.getElementById("text");
+  const breakOnInput = document.getElementById("breakOn");
+  const columnDelineation = document.getElementById("columnDelineation");
+  const autoScrollEnabled = document.getElementById("autoScrollEnabled");
+  const autoScrollSeconds = document.getElementById("autoScrollSeconds");
+  const countdown = document.getElementById("countdown");
+
   const minScrollIntervalMs = 200;
   let lastStepAt = 0;
+  let autoScrollTimeout = null;
+  let countdownInterval = null;
+  let deadlineMs = 0;
 
   function getScrollStep() {
     const styles = window.getComputedStyle(pre);
@@ -45,7 +68,7 @@ function setupKeyboardScroll(pre) {
     return window.innerWidth;
   }
 
-  window.addEventListener("keydown", () => {
+  function stepColumns() {
     const now = Date.now();
     if (now - lastStepAt < minScrollIntervalMs) {
       return;
@@ -63,11 +86,107 @@ function setupKeyboardScroll(pre) {
     const target = next > maxLeft ? 0 : next;
 
     window.scrollTo({ left: target, behavior: "smooth" });
-  });
+  }
+
+  function stopCountdown() {
+    if (countdownInterval !== null) {
+      window.clearInterval(countdownInterval);
+      countdownInterval = null;
+    }
+  }
+
+  function clearAutoscroll() {
+    if (autoScrollTimeout !== null) {
+      window.clearTimeout(autoScrollTimeout);
+      autoScrollTimeout = null;
+    }
+    stopCountdown();
+    countdown.hidden = true;
+  }
+
+   function updateCountdown() {
+     const remainingMs = Math.max(0, deadlineMs - Date.now());
+     countdown.textContent = `${(remainingMs / 1000).toFixed(0)}s`;
+   }
+
+  function scheduleAutoscroll() {
+    clearAutoscroll();
+
+    if (!autoScrollEnabled.checked) {
+      return;
+    }
+
+    const seconds = Number.parseFloat(autoScrollSeconds.value);
+    if (!Number.isFinite(seconds) || seconds < 1) {
+      return;
+    }
+
+    const delayMs = seconds * 1000;
+    deadlineMs = Date.now() + delayMs;
+    countdown.hidden = false;
+    updateCountdown();
+    countdownInterval = window.setInterval(updateCountdown, 100);
+    autoScrollTimeout = window.setTimeout(() => {
+      stepColumns();
+      scheduleAutoscroll();
+    }, delayMs);
+  }
+
+  function rerender() {
+    renderText(rawText, breakOnInput.value);
+  }
+
+  function applyColumnRule() {
+    pre.style.columnRule = columnDelineation.checked ? "1px solid #d0d0d0" : "none";
+  }
+
+   window.addEventListener("keydown", (event) => {
+     const target = event.target;
+     if (event.ctrlKey || event.metaKey || event.altKey) {
+       return;
+     }
+
+     if (ignoredKeys.has(event.key)) {
+       return;
+     }
+
+     if (
+       target instanceof HTMLInputElement ||
+       target instanceof HTMLTextAreaElement ||
+       (target instanceof HTMLElement && target.isContentEditable)
+     ) {
+       return;
+     }
+
+     stepColumns();
+     if (autoScrollEnabled.checked) {
+       scheduleAutoscroll();
+     }
+   });
+
+   // Make vertical scroll wheel control horizontal scrolling
+   window.addEventListener("wheel", (event) => {
+     // Prevent default vertical scroll behavior
+     event.preventDefault();
+     
+     // Scroll horizontally based on vertical wheel movement
+     window.scrollBy({
+       left: event.deltaY,
+       behavior: "smooth"
+     });
+   });
+
+  breakOnInput.addEventListener("change", rerender);
+  columnDelineation.addEventListener("change", applyColumnRule);
+  autoScrollEnabled.addEventListener("change", scheduleAutoscroll);
+  autoScrollSeconds.addEventListener("change", scheduleAutoscroll);
+
+  rerender();
+  applyColumnRule();
+  scheduleAutoscroll();
 }
 
 (async () => {
   const rawText = await getRawText();
-  const pre = renderText(rawText);
-  setupKeyboardScroll(pre);
+  setupReader(rawText);
 })();
