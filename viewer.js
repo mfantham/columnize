@@ -183,9 +183,10 @@ function setupReader(rawText) {
   });
   fontSize.addEventListener("change", () => {
     pre.style.fontSize = fontSize.value + "rem";
+    pre.style.lineHeight = lineHeight.value;
   });
   lineHeight.addEventListener("change", () => {
-    pre.style.lineHeight = lineHeight.value + "rem";
+    pre.style.lineHeight = lineHeight.value;
   });
   autoScrollEnabled.addEventListener("change", scheduleAutoscroll);
   autoScrollSeconds.addEventListener("change", scheduleAutoscroll);
