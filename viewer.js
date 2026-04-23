@@ -11,18 +11,7 @@ async function getRawText() {
   return params.get("text") ?? "";
 }
 
-function decodeBreakToken(token) {
-  const escapedCharMap = {
-    n: "\n",
-    r: "\r",
-    t: "\t",
-    "\\": "\\"
-  };
 
-  return token.replace(/\\([\\nrt])/g, (_, escaped) => {
-    return escapedCharMap[escaped] ?? `\\${escaped}`;
-  });
-}
 
 function renderText(rawText, breakTokenInput) {
   const pre = document.getElementById("text");
@@ -151,29 +140,41 @@ function setupReader(rawText) {
     pre.style.columnRule = columnDelineation.checked ? "1px solid #d0d0d0" : "none";
   }
 
-  window.addEventListener("keydown", (event) => {
-    const target = event.target;
-    if (event.ctrlKey || event.metaKey || event.altKey) {
-      return;
-    }
+   window.addEventListener("keydown", (event) => {
+     const target = event.target;
+     if (event.ctrlKey || event.metaKey || event.altKey) {
+       return;
+     }
 
-    if (ignoredKeys.has(event.key)) {
-      return;
-    }
+     if (ignoredKeys.has(event.key)) {
+       return;
+     }
 
-    if (
-      target instanceof HTMLInputElement ||
-      target instanceof HTMLTextAreaElement ||
-      (target instanceof HTMLElement && target.isContentEditable)
-    ) {
-      return;
-    }
+     if (
+       target instanceof HTMLInputElement ||
+       target instanceof HTMLTextAreaElement ||
+       (target instanceof HTMLElement && target.isContentEditable)
+     ) {
+       return;
+     }
 
-    stepColumns();
-    if (autoScrollEnabled.checked) {
-      scheduleAutoscroll();
-    }
-  });
+     stepColumns();
+     if (autoScrollEnabled.checked) {
+       scheduleAutoscroll();
+     }
+   });
+
+   // Make vertical scroll wheel control horizontal scrolling
+   window.addEventListener("wheel", (event) => {
+     // Prevent default vertical scroll behavior
+     event.preventDefault();
+     
+     // Scroll horizontally based on vertical wheel movement
+     window.scrollBy({
+       left: event.deltaY,
+       behavior: "smooth"
+     });
+   });
 
   breakOnInput.addEventListener("change", rerender);
   columnDelineation.addEventListener("change", applyColumnRule);

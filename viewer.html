@@ -29,7 +29,7 @@
       }
 
       #toolbar {
-        position: sticky;
+        position: fixed;
         top: 0;
         z-index: 1;
         display: flex;
@@ -55,7 +55,7 @@
       }
 
       #toolbar input[type="number"] {
-        width: 3.8rem;
+        width: 2.5rem;
       }
 
       #countdown {
@@ -92,11 +92,14 @@
         <div id="toolbar">
            <label for="breakOn">Break regex:</label>
            <input id="breakOn" type="text" value="\n\s+\n" />
-          <label><input id="columnDelineation" type="checkbox" checked /> Column delineation</label>
-          <label><input id="autoScrollEnabled" type="checkbox" /> Autoscroll</label>
-           <label for="autoScrollSeconds">after s</label>
-           <input id="autoScrollSeconds" type="number" min="1" step="1" value="30" />
-          <span id="countdown" hidden></span>
+          <label><input id="columnDelineation" type="checkbox" checked />Rulers</label>
+          <div style="display: flex">
+            <label><input id="autoScrollEnabled" type="checkbox" />Autoscroll</label>
+            <label for="autoScrollSeconds">&nbsp;after&nbsp;</label>
+            <input id="autoScrollSeconds" type="number" min="1" step="1" value="30" />
+            <label>s </label>
+            <span id="countdown" hidden></span>
+          </div>
         </div>
         <pre id="text"></pre>
       </div>
