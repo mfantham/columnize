@@ -64,6 +64,7 @@ function setupReader(rawText) {
     const width = parseFloat(styles.columnWidth);
     const gap = parseFloat(styles.columnGap);
 
+    console.log({ width, gap });
     if (Number.isFinite(width) && Number.isFinite(gap) && width > 0) {
       return width + gap;
     }
