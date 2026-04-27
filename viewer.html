@@ -73,11 +73,12 @@
       pre {
         box-sizing: border-box;
         margin: 0;
-        padding: 1rem;
+        /* padding: 1rem 0rem; */
+        padding: 0;
         height: calc(100% - 2rem);
         min-height: 0;
-        column-width: 80ch;
-        column-gap: 2rem;
+        column-width: auto;
+        column-gap: 0;
         column-fill: auto;
         column-rule: 1px solid #d0d0d0;
         width: max-content;
@@ -90,6 +91,7 @@
       .chunk {
         display: block;
         break-inside: avoid;
+        padding: 1rem;
       }
     </style>
   </head>

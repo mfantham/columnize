@@ -62,11 +62,9 @@ function setupReader(rawText) {
   function getScrollStep() {
     const styles = window.getComputedStyle(pre);
     const width = parseFloat(styles.columnWidth);
-    const gap = parseFloat(styles.columnGap);
 
-    console.log({ width, gap });
-    if (Number.isFinite(width) && Number.isFinite(gap) && width > 0) {
-      return width + gap;
+    if (Number.isFinite(width) && width > 0) {
+      return width;
     }
 
     return window.innerWidth;
@@ -79,15 +77,27 @@ function setupReader(rawText) {
     }
 
     lastStepAt = now;
-    const maxLeft = document.documentElement.scrollWidth - window.innerWidth;
+
+    const documentWidth = document.documentElement.scrollWidth;
+    const maxLeft = documentWidth - window.innerWidth;
 
     if (maxLeft <= 0) {
       return;
     }
 
+    if (window.scrollX >= maxLeft) {
+      window.scrollTo({ left: 0, behavior: "smooth" });
+      return;
+    }
+
     const step = getScrollStep();
-    const next = window.scrollX + step;
-    const target = next > maxLeft ? 0 : next;
+    const nColumns = documentWidth / step;
+
+    const currentColumn = Math.floor(window.scrollX / step);
+    const nextColumn = (currentColumn + 1) % nColumns;
+
+    const next = Math.ceil(nextColumn * step);
+    const target = next > maxLeft ? maxLeft : next;
 
     window.scrollTo({ left: target, behavior: "smooth" });
   }
@@ -138,10 +148,18 @@ function setupReader(rawText) {
 
   function rerender() {
     renderText(rawText, breakOnInput.value);
+    setColumnWidth();
   }
 
   function applyColumnRule() {
     pre.style.columnRule = columnDelineation.checked ? "1px solid #d0d0d0" : "none";
+  }
+
+  function setColumnWidth() {
+    const text = pre.textContent;
+    const lines = text.split("\n");
+    const maxLength = Math.max(...lines.map((l) => l.length), 1);
+    pre.style.columnWidth = maxLength + "ch";
   }
 
    window.addEventListener("keydown", (event) => {
@@ -194,6 +212,7 @@ function setupReader(rawText) {
 
   rerender();
   applyColumnRule();
+  setColumnWidth();
   scheduleAutoscroll();
 }
 
