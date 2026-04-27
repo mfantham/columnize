@@ -11,6 +11,8 @@ async function getRawText() {
   return params.get("text") ?? "";
 }
 
+let currentRawText = "";
+
 
 
 function renderText(rawText, breakTokenInput) {
@@ -52,6 +54,10 @@ function setupReader(rawText) {
   const autoScrollEnabled = document.getElementById("autoScrollEnabled");
   const autoScrollSeconds = document.getElementById("autoScrollSeconds");
   const countdown = document.getElementById("countdown");
+  const editBtn = document.getElementById("editBtn");
+  const saveBtn = document.getElementById("saveBtn");
+  let originalRawText = currentRawText;
+  let isEditing = false;
 
   const minScrollIntervalMs = 200;
   let lastStepAt = 0;
@@ -147,7 +153,7 @@ function setupReader(rawText) {
   }
 
   function rerender() {
-    renderText(rawText, breakOnInput.value);
+    renderText(currentRawText, breakOnInput.value);
     setColumnWidth();
   }
 
@@ -162,29 +168,44 @@ function setupReader(rawText) {
     pre.style.columnWidth = maxLength + "ch";
   }
 
-   window.addEventListener("keydown", (event) => {
-     const target = event.target;
-     if (event.ctrlKey || event.metaKey || event.altKey) {
-       return;
-     }
+window.addEventListener("keydown", (event) => {
+      const target = event.target;
+      
+      if (isEditing) {
+        if (event.key === "Escape") {
+          pre.textContent = originalRawText;
+          toggleEditMode();
+          return;
+        }
+        if ((event.ctrlKey || event.metaKey) && event.key === "s") {
+          event.preventDefault();
+          saveEdits();
+          return;
+        }
+        return;
+      }
 
-     if (ignoredKeys.has(event.key)) {
-       return;
-     }
+      if (event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
 
-     if (
-       target instanceof HTMLInputElement ||
-       target instanceof HTMLTextAreaElement ||
-       (target instanceof HTMLElement && target.isContentEditable)
-     ) {
-       return;
-     }
+      if (ignoredKeys.has(event.key)) {
+        return;
+      }
 
-     stepColumns();
-     if (autoScrollEnabled.checked) {
-       scheduleAutoscroll();
-     }
-   });
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        (target instanceof HTMLElement && target.isContentEditable)
+      ) {
+        return;
+      }
+
+      stepColumns();
+      if (autoScrollEnabled.checked) {
+        scheduleAutoscroll();
+      }
+    });
 
    // Make vertical scroll wheel control horizontal scrolling
    window.addEventListener("wheel", (event) => {     
@@ -210,6 +231,31 @@ function setupReader(rawText) {
   autoScrollEnabled.addEventListener("change", scheduleAutoscroll);
   autoScrollSeconds.addEventListener("change", scheduleAutoscroll);
 
+  function toggleEditMode() {
+    isEditing = !isEditing;
+    editBtn.hidden = isEditing;
+    saveBtn.hidden = !isEditing;
+    pre.contentEditable = isEditing;
+    pre.style.outline = isEditing ? "2px solid #007bff" : "none";
+    pre.style.cursor = isEditing ? "text" : "default";
+    pre.style.whiteSpace = isEditing ? "pre-wrap" : "pre";
+
+    if (isEditing) {
+      pre.focus();
+    } else {
+      originalRawText = pre.textContent;
+    }
+  }
+
+  function saveEdits() {
+    currentRawText = pre.textContent;
+    toggleEditMode();
+    setColumnWidth();
+  }
+
+  editBtn.addEventListener("click", toggleEditMode);
+  saveBtn.addEventListener("click", saveEdits);
+
   rerender();
   applyColumnRule();
   setColumnWidth();
@@ -217,6 +263,6 @@ function setupReader(rawText) {
 }
 
 (async () => {
-  const rawText = await getRawText();
-  setupReader(rawText);
+  currentRawText = await getRawText();
+  setupReader(currentRawText);
 })();
