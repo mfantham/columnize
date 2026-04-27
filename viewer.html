@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Columnize</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lilex:wght@400;700&family=Libertinus+Mono&family=Xanh+Mono&family=Nova+Mono&family=Lekton&family=Fira+Code&family=Inconsolata&family=Space+Mono&family=Fira+Mono&family=Cutive+Mono&family=Courier+Prime&display=swap" rel="stylesheet">
     <style>
       html,
       body {
@@ -26,6 +29,7 @@
         width: max-content;
         min-width: 100vw;
         height: 100vh;
+        padding-top: 2rem;
       }
 
       #toolbar {
@@ -69,21 +73,25 @@
       pre {
         box-sizing: border-box;
         margin: 0;
-        padding: 1rem;
-        height: 100%;
+        /* padding: 1rem 0rem; */
+        padding: 0;
+        height: calc(100% - 2rem);
         min-height: 0;
-        column-width: 80ch;
-        column-gap: 2rem;
+        column-width: auto;
+        column-gap: 0;
         column-fill: auto;
         column-rule: 1px solid #d0d0d0;
         width: max-content;
-        min-width: 100vw;
         white-space: pre;
+        font-family: "Lilex", monospace;
+        font-size: 1rem;
+        line-height: 1rem;
       }
 
       .chunk {
         display: block;
         break-inside: avoid;
+        padding: 1rem;
       }
     </style>
   </head>
@@ -93,6 +101,24 @@
            <label for="breakOn">Break regex:</label>
            <input id="breakOn" type="text" value="\n\s+\n" />
           <label><input id="columnDelineation" type="checkbox" checked />Rulers</label>
+          <label for="fontFamily">Font:</label>
+          <select id="fontFamily">
+            <option value="Lilex" selected>Lilex</option>
+            <option value="Libertinus Mono">Libertinus Mono</option>
+            <option value="Xanh Mono">Xanh Mono</option>
+            <option value="Nova Mono">Nova Mono</option>
+            <option value="Lekton">Lekton</option>
+            <option value="Fira Code">Fira Code</option>
+            <option value="Inconsolata">Inconsolata</option>
+            <option value="Space Mono">Space Mono</option>
+            <option value="Fira Mono">Fira Mono</option>
+            <option value="Cutive Mono">Cutive Mono</option>
+            <option value="Courier Prime">Courier Prime</option>
+          </select>
+          <label for="fontSize">Size:</label>
+          <input id="fontSize" type="number" min="0.5" step="0.1" value="1" />
+          <label for="lineHeight">Height:</label>
+          <input id="lineHeight" type="number" min="0.5" step="0.1" value="1" />
           <div style="display: flex">
             <label><input id="autoScrollEnabled" type="checkbox" />Autoscroll</label>
             <label for="autoScrollSeconds">&nbsp;after&nbsp;</label>
